@@ -7,8 +7,11 @@
 //
 
 #import "AppDelegate.h"
+#import "AFNetworking.h"
+#import "Reachability.h"
 
 @interface AppDelegate ()
+@property (nonatomic, assign) NSInteger number;
 
 @end
 
@@ -16,30 +19,87 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    
+//    //网络监控句柄
+//    AFNetworkReachabilityManager *manager = [AFNetworkReachabilityManager sharedManager];
+//    //要监控网络连接状态，必须要先调用单例的startMonitoring方法
+//    [manager startMonitoring];
+//    [manager setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+//        //status:
+//        //AFNetworkReachabilityStatusUnknown          = -1,  未知
+//        //AFNetworkReachabilityStatusNotReachable     = 0,   未连接
+//        //AFNetworkReachabilityStatusReachableViaWWAN = 1,   3G
+//        //AFNetworkReachabilityStatusReachableViaWiFi = 2,   无线连接
+//        NSLog(@"%ld", (long)status);
+////        _number = status;
+//        switch (status) {
+//            case AFNetworkReachabilityStatusUnknown:
+//                NSLog(@"网络状态未知");
+//                break;
+//            case AFNetworkReachabilityStatusNotReachable:
+//                NSLog(@"网络未连接");
+//                break;
+//            case AFNetworkReachabilityStatusReachableViaWWAN:
+//                NSLog(@"2/3/4G网络");
+//                break;
+//                
+//            default:
+//                 NSLog(@"wify网络");
+//                break;
+//        }
+//    }];
+    
+//******************************************苹果自带的网络监控****************************************************************
+    // Allocate a reachability object
+    Reachability* reach = [Reachability reachabilityWithHostname:@"www.baidu.com"];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(reachabilityChanged:)
+                                                 name:kReachabilityChangedNotification
+                                               object:nil];
+    [reach startNotifier];
     return YES;
 }
+- (void)reachabilityChanged:(NSNotification *)note{
+    Reachability* curReach = [note object];
+    [curReach currentReachabilityStatus];
+    NSParameterAssert([curReach isKindOfClass:[Reachability class]]);
+    [self updateInterfaceWithReachability:curReach];
+}
+- (void)updateInterfaceWithReachability:(Reachability *)reachability
+{
+    NetworkStatus netStatus = [reachability currentReachabilityStatus];
+    switch (netStatus) {
+        case NotReachable:
+            NSLog(@"====当前网络状态不可达=======");
+            break;
+        case ReachableViaWiFi:
+            NSLog(@"====当前网络状态为Wifi=======");
+            break;
+        case ReachableViaWWAN:
+            NSLog(@"====当前网络状态为3G=======");
+            break;
+    }
+}
+
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    
 }
 
 @end
